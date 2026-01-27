@@ -20,7 +20,7 @@ import {
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
 // Types
-type MarketPlatform = "smartstore" | "coupang" | "custom";
+type MarketPlatform = "naver_general" | "naver_small" | "naver_link" | "coupang_general" | "coupang_digital" | "others" | "custom";
 type VatType = "general" | "simplified";
 
 interface HistoryItem {
@@ -39,8 +39,12 @@ const TAX_THRESHOLD_USD = 150;
 const DUTY_TAX_RATE = 0.18;
 
 const PLATFORM_FEES = {
-    smartstore: 0.057,
-    coupang: 0.108,
+    naver_general: 0.0563,
+    naver_small: 0.0398,
+    naver_link: 0.0363,
+    coupang_general: 0.1199,
+    coupang_digital: 0.066,
+    others: 0.13,
     custom: 0,
 };
 
@@ -49,7 +53,7 @@ const COLORS = ['#3B82F6', '#9CA3AF', '#EF4444', '#10B981']; // Product, Logisti
 
 export default function MarginCalculator() {
     // --- Column 1: Basic Settings ---
-    const [platform, setPlatform] = useState<MarketPlatform>("smartstore");
+    const [platform, setPlatform] = useState<MarketPlatform>("naver_general");
     const [customFeeRate, setCustomFeeRate] = useState<number | "">("");
     const [exchangeRate, setExchangeRate] = useState<number>(200);
     const [isRateLive, setIsRateLive] = useState(false);
@@ -152,7 +156,12 @@ export default function MarginCalculator() {
         if (platform === "custom") {
             feeRate = (Number(customFeeRate) || 0) / 100;
         }
-        const feeKRW = revenue * feeRate;
+        let feeKRW = revenue * feeRate;
+
+        // --- Coupang Logic: 3.3% Commission on Shipping Fee ---
+        if (platform.includes("coupang")) {
+            feeKRW += custShipKRW * 0.033;
+        }
 
         const totalSourcingUSD = (priceCNY + localShipCNY) / USD_CNY_RATE;
         let dutyKRW = 0;
@@ -176,11 +185,10 @@ export default function MarginCalculator() {
         // Profit = R * (1 - feeRate - vatRate) - FixedCosts
         // Target Margin = Profit / R = (R * (1 - feeRate - vatRate) - FixedCosts) / R
         // Target Margin = (1 - feeRate - vatRate) - (FixedCosts / R)
-        // Target Margin - (1 - feeRate - vatRate) = - (FixedCosts / R)
-        // (1 - feeRate - vatRate - TargetMargin) = FixedCosts / R
         // R = FixedCosts / (1 - feeRate - vatRate - TargetMargin)
 
-        const fixedCosts = goodsCostKRW + logisticsKRW + adKRW + dutyKRW;
+        const extraCoupangFee = platform.includes("coupang") ? custShipKRW * 0.033 : 0;
+        const fixedCosts = goodsCostKRW + logisticsKRW + adKRW + dutyKRW + extraCoupangFee;
         const taxAndFeeRate = feeRate + vatRate;
         const requiredMarginRate = tgtMargin / 100;
 
@@ -291,9 +299,19 @@ export default function MarginCalculator() {
                                     onChange={(e) => setPlatform(e.target.value as MarketPlatform)}
                                     className="w-full p-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
                                 >
-                                    <option value="smartstore">스마트스토어 (5.7%)</option>
-                                    <option value="coupang">쿠팡 (10.8%)</option>
-                                    <option value="custom">직접 입력</option>
+                                    <optgroup label="네이버 스마트스토어">
+                                        <option value="naver_general">네이버 (일반/검색연동) - 5.63%</option>
+                                        <option value="naver_small">네이버 (영세/초기) - 3.98%</option>
+                                        <option value="naver_link">네이버 (링크결제/SNS) - 3.63%</option>
+                                    </optgroup>
+                                    <optgroup label="쿠팡 (배송비 수수료 포함)">
+                                        <option value="coupang_general">쿠팡 (의류/잡화/생활) - 11.99%</option>
+                                        <option value="coupang_digital">쿠팡 (디지털/가전) - 6.6%</option>
+                                    </optgroup>
+                                    <optgroup label="기타 / 직접입력">
+                                        <option value="others">11번가/G마켓 - 13%</option>
+                                        <option value="custom">직접 입력</option>
+                                    </optgroup>
                                 </select>
                                 {platform === "custom" && (
                                     <div className="flex items-center mt-2">
