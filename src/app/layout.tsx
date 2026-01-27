@@ -16,6 +16,9 @@ export const metadata: Metadata = {
   title: "2026 해외구매대행 마진 계산기 (관부가세/CBM/수수료 완벽 분석)",
   description: "타오바오, 알리익스프레스 직구 및 구매대행 셀러 필수 도구. 실시간 환율, 관부가세(150불 기준), 스마트스토어/쿠팡 수수료를 한 번에 계산하여 순수익을 확인하세요.",
   keywords: "해외구매대행, 마진계산기, 관부가세 계산기, 타오바오 직구, 스마트스토어 수수료, 알리익스프레스, CBM 계산",
+  verification: {
+    google: "BTBEVlvmBMtxwZxMKtDQPe8HVhtAHeFLEgDCC8XkAgM",
+  },
 };
 
 export default function RootLayout({
