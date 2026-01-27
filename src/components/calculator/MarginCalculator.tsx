@@ -264,7 +264,7 @@ export default function MarginCalculator() {
                 <div className="bg-gradient-to-r from-slate-900 to-slate-800 p-6 text-white flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <Calculator className="w-6 h-6 text-blue-400" />
-                        <h1 className="text-xl font-bold tracking-tight">SaaS Pro Margin Dashboard</h1>
+                        <h1 className="text-xl font-bold tracking-tight">Global Seller Calculator</h1>
                     </div>
                     {isRateLive && (
                         <div className="flex items-center gap-1.5 px-3 py-1 bg-green-500/20 text-green-400 text-xs rounded-full border border-green-500/30">
