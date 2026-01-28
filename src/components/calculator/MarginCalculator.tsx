@@ -27,6 +27,7 @@ import ShippingRateTable from './ShippingRateTable';
 // Types
 type MarketPlatform = "naver_general" | "naver_small" | "naver_link" | "coupang_general" | "coupang_digital" | "others" | "custom";
 type VatType = "general" | "simplified";
+type SourceCountry = "china" | "usa" | "japan" | "eu";
 
 interface HistoryItem {
     id: number;
@@ -39,9 +40,15 @@ interface HistoryItem {
 
 // Constants
 const SHIPPING_RATE_PER_KG = 7000;
-const USD_CNY_RATE = 7.25;
-const TAX_THRESHOLD_USD = 150;
-const DUTY_TAX_RATE = 0.18;
+const DUTY_TAX_RATE = 0.18; // Default Korea import duty + VAT combined rate
+
+// Country-specific customs thresholds and exchange rates
+const COUNTRY_CUSTOMS: Record<SourceCountry, { name: string; flag: string; currency: string; toUsdRate: number; thresholdUsd: number; shippingRate: number }> = {
+    china: { name: "중국", flag: "🇨🇳", currency: "CNY", toUsdRate: 7.25, thresholdUsd: 150, shippingRate: 7000 },
+    usa: { name: "미국", flag: "🇺🇸", currency: "USD", toUsdRate: 1, thresholdUsd: 200, shippingRate: 12000 },
+    japan: { name: "일본", flag: "🇯🇵", currency: "JPY", toUsdRate: 150, thresholdUsd: 130, shippingRate: 8000 },
+    eu: { name: "유럽", flag: "🇪🇺", currency: "EUR", toUsdRate: 0.92, thresholdUsd: 150, shippingRate: 15000 },
+};
 
 const PLATFORM_FEES = {
     naver_general: 0.0563,
@@ -64,6 +71,7 @@ export default function MarginCalculator() {
     const [isRateLive, setIsRateLive] = useState(false);
     const [vatType, setVatType] = useState<VatType>("general");
     const [targetMargin, setTargetMargin] = useState<number>(30); // Default 30%
+    const [sourceCountry, setSourceCountry] = useState<SourceCountry>("china");
 
     // --- Column 2: Inputs ---
     const [sourcingPrice, setSourcingPrice] = useState<number | "">("");
@@ -164,7 +172,11 @@ export default function MarginCalculator() {
 
         const revenue = sellPriceKRW + custShipKRW;
         const goodsCostKRW = (priceCNY + localShipCNY) * exchangeRate;
-        const intlShipKRW = calcWeight * SHIPPING_RATE_PER_KG;
+
+        // Country-specific duty calculation
+        const countryConfig = COUNTRY_CUSTOMS[sourceCountry];
+        const shippingRatePerKg = countryConfig.shippingRate;
+        const intlShipKRW = calcWeight * shippingRatePerKg;
         const logisticsKRW = intlShipKRW + domShipKRW + packKRW;
 
         let feeRate = PLATFORM_FEES[platform];
@@ -178,9 +190,9 @@ export default function MarginCalculator() {
             feeKRW += custShipKRW * 0.033;
         }
 
-        const totalSourcingUSD = (priceCNY + localShipCNY) / USD_CNY_RATE;
+        const totalSourcingUSD = (priceCNY + localShipCNY) / countryConfig.toUsdRate;
         let dutyKRW = 0;
-        if (totalSourcingUSD > TAX_THRESHOLD_USD) {
+        if (totalSourcingUSD > countryConfig.thresholdUsd) {
             dutyKRW = (goodsCostKRW + intlShipKRW) * DUTY_TAX_RATE;
         }
 
@@ -361,8 +373,8 @@ export default function MarginCalculator() {
                     <button
                         onClick={shareCalcResult}
                         className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg transition-all duration-200 ${shareStatus === 'copied'
-                                ? 'bg-green-500 text-white'
-                                : 'bg-white/10 hover:bg-white/20 text-white border border-white/20'
+                            ? 'bg-green-500 text-white'
+                            : 'bg-white/10 hover:bg-white/20 text-white border border-white/20'
                             }`}
                     >
                         {shareStatus === 'copied' ? (
@@ -415,6 +427,25 @@ export default function MarginCalculator() {
                                         />
                                     </div>
                                 )}
+                            </div>
+
+                            {/* Source Country Selector */}
+                            <div className="space-y-2">
+                                <label className="text-xs font-semibold text-slate-500 uppercase">소싱 국가</label>
+                                <select
+                                    value={sourceCountry}
+                                    onChange={(e) => setSourceCountry(e.target.value as SourceCountry)}
+                                    className="w-full p-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                                >
+                                    {Object.entries(COUNTRY_CUSTOMS).map(([key, config]) => (
+                                        <option key={key} value={key}>
+                                            {config.flag} {config.name} ({config.currency}) - ${config.thresholdUsd} 면세
+                                        </option>
+                                    ))}
+                                </select>
+                                <div className="text-[10px] text-slate-400 bg-slate-100 rounded p-2">
+                                    💡 {COUNTRY_CUSTOMS[sourceCountry].flag} {COUNTRY_CUSTOMS[sourceCountry].name} 배송비: ₩{COUNTRY_CUSTOMS[sourceCountry].shippingRate.toLocaleString()}/kg
+                                </div>
                             </div>
 
                             <div className="space-y-2">
