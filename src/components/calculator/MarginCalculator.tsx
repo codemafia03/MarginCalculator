@@ -19,6 +19,7 @@ import {
     Download
 } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import ProductComparison from './ProductComparison';
 
 // Types
 type MarketPlatform = "naver_general" | "naver_small" | "naver_link" | "coupang_general" | "coupang_digital" | "others" | "custom";
@@ -628,6 +629,9 @@ export default function MarginCalculator() {
                     </table>
                 </div>
             </div>
+
+            {/* --- Multi-Product Comparison Section --- */}
+            <ProductComparison exchangeRate={exchangeRate} />
 
             <style jsx>{`
                 .input-field {
