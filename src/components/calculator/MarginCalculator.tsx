@@ -16,7 +16,9 @@ import {
     CheckCircle2,
     Sparkles,
     Wifi,
-    Download
+    Download,
+    Share2,
+    Check
 } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import ProductComparison from './ProductComparison';
@@ -86,6 +88,7 @@ export default function MarginCalculator() {
     // History State
     const [history, setHistory] = useState<HistoryItem[]>([]);
     const [isClient, setIsClient] = useState(false);
+    const [shareStatus, setShareStatus] = useState<'idle' | 'copied'>('idle');
 
     // Live Exchange Rate API
     useEffect(() => {
@@ -110,6 +113,15 @@ export default function MarginCalculator() {
             }
         };
         fetchRate();
+
+        // Parse URL params for shared calculations
+        const params = new URLSearchParams(window.location.search);
+        if (params.has('sp')) setSourcingPrice(Number(params.get('sp')) || "");
+        if (params.has('w')) setWeight(Number(params.get('w')) || "");
+        if (params.has('sell')) setSellingPrice(Number(params.get('sell')) || "");
+        if (params.has('pf')) setPlatform(params.get('pf') as MarketPlatform || "naver_general");
+        if (params.has('csf')) setCustomerShipFee(Number(params.get('csf')) || "");
+        if (params.has('ad')) setAdCost(Number(params.get('ad')) || "");
     }, []);
 
     // --- Business Logic ---
@@ -300,6 +312,35 @@ export default function MarginCalculator() {
         URL.revokeObjectURL(url);
     };
 
+    // Share Calculation via URL
+    const shareCalcResult = async () => {
+        const params = new URLSearchParams();
+        if (sourcingPrice) params.set('sp', String(sourcingPrice));
+        if (weight) params.set('w', String(weight));
+        if (sellingPrice) params.set('sell', String(sellingPrice));
+        if (platform) params.set('pf', platform);
+        if (customerShipFee) params.set('csf', String(customerShipFee));
+        if (adCost) params.set('ad', String(adCost));
+
+        const shareUrl = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+
+        try {
+            await navigator.clipboard.writeText(shareUrl);
+            setShareStatus('copied');
+            setTimeout(() => setShareStatus('idle'), 2000);
+        } catch (err) {
+            // Fallback for older browsers
+            const textArea = document.createElement('textarea');
+            textArea.value = shareUrl;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            setShareStatus('copied');
+            setTimeout(() => setShareStatus('idle'), 2000);
+        }
+    };
+
     if (!isClient) return <div className="p-10 text-center">Loading...</div>;
 
     return (
@@ -317,6 +358,19 @@ export default function MarginCalculator() {
                             <span>Live Rates Active</span>
                         </div>
                     )}
+                    <button
+                        onClick={shareCalcResult}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg transition-all duration-200 ${shareStatus === 'copied'
+                                ? 'bg-green-500 text-white'
+                                : 'bg-white/10 hover:bg-white/20 text-white border border-white/20'
+                            }`}
+                    >
+                        {shareStatus === 'copied' ? (
+                            <><Check className="w-3.5 h-3.5" /> 복사됨!</>
+                        ) : (
+                            <><Share2 className="w-3.5 h-3.5" /> 공유</>
+                        )}
+                    </button>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 lg:divide-x divide-gray-100">
