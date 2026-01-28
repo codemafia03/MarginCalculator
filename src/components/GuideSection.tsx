@@ -58,6 +58,87 @@ export default function GuideSection() {
                         </li>
                     </ul>
                 </article>
+
+                {/* --- New Section: How to Use --- */}
+                <article className="prose prose-blue max-w-none pt-8 border-t border-gray-100">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                        계산기 사용 방법 (How to Use)
+                    </h2>
+                    <ul className="space-y-4">
+                        <li className="flex items-start gap-3">
+                            <span className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-100 text-blue-600 font-bold flex items-center justify-center text-sm mt-0.5">1</span>
+                            <span className="text-gray-600">
+                                <strong>상품 원가 입력:</strong> 타오바오나 1688 알리바바의 위안화(CNY) 가격을 입력하세요. 현재 환율이 자동 적용됩니다.
+                            </span>
+                        </li>
+                        <li className="flex items-start gap-3">
+                            <span className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-100 text-blue-600 font-bold flex items-center justify-center text-sm mt-0.5">2</span>
+                            <span className="text-gray-600">
+                                <strong>배송비 설정:</strong> 예상되는 배송대행지(배대지) 요금을 입력하세요. 부피가 큰 제품은 경동택배 이관비가 발생할 수 있습니다.
+                            </span>
+                        </li>
+                        <li className="flex items-start gap-3">
+                            <span className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-100 text-blue-600 font-bold flex items-center justify-center text-sm mt-0.5">3</span>
+                            <span className="text-gray-600">
+                                <strong>마켓 수수료 선택:</strong> 판매할 플랫폼(스마트스토어, 쿠팡, 11번가 등)을 선택하면 수수료가 자동으로 계산됩니다.
+                            </span>
+                        </li>
+                        <li className="flex items-start gap-3">
+                            <span className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-100 text-blue-600 font-bold flex items-center justify-center text-sm mt-0.5">4</span>
+                            <span className="text-gray-600">
+                                <strong>최종 마진 확인:</strong> 순수익과 마진율을 확인하고 판매가를 결정하세요.
+                            </span>
+                        </li>
+                    </ul>
+                </article>
+
+                {/* --- New Section: FAQ --- */}
+                <article className="prose prose-blue max-w-none pt-8 border-t border-gray-100">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                        자주 묻는 질문 (FAQ)
+                    </h2>
+                    <div className="space-y-6">
+                        <div className="bg-gray-50 rounded-lg p-5">
+                            <h3 className="font-bold text-gray-900 mb-2 flex items-center gap-2">
+                                <span className="text-blue-500">Q.</span> 마진율은 어떻게 계산되나요?
+                            </h3>
+                            <p className="text-gray-600 text-sm pl-6">
+                                <span className="font-bold text-gray-400 mr-2">A.</span>
+                                마진율은 <code>(판매가 - 매입원가 - 배송비 - 마켓수수료) / 판매가 × 100</code> 공식으로 계산됩니다. 역마진이 나지 않도록 꼼꼼히 확인하세요.
+                            </p>
+                        </div>
+
+                        <div className="bg-gray-50 rounded-lg p-5">
+                            <h3 className="font-bold text-gray-900 mb-2 flex items-center gap-2">
+                                <span className="text-blue-500">Q.</span> 관부가세 부과 기준은 무엇인가요?
+                            </h3>
+                            <p className="text-gray-600 text-sm pl-6">
+                                <span className="font-bold text-gray-400 mr-2">A.</span>
+                                목록통관 기준 미화 150달러(미국은 200달러)를 초과하면 관세와 부가세가 발생합니다. 이 계산기는 관부가세를 제외한 마진을 보여줍니다.
+                            </p>
+                        </div>
+
+                        <div className="bg-gray-50 rounded-lg p-5">
+                            <h3 className="font-bold text-gray-900 mb-2 flex items-center gap-2">
+                                <span className="text-blue-500">Q.</span> CBM이 무엇인가요?
+                            </h3>
+                            <p className="text-gray-600 text-sm pl-6">
+                                <span className="font-bold text-gray-400 mr-2">A.</span>
+                                CBM(Cubic Meter)은 화물의 가로, 세로, 높이를 미터(m) 단위로 곱한 부피 단위입니다. 해운 배송 시 배송비 책정의 기준이 됩니다.
+                            </p>
+                        </div>
+
+                        <div className="bg-gray-50 rounded-lg p-5">
+                            <h3 className="font-bold text-gray-900 mb-2 flex items-center gap-2">
+                                <span className="text-blue-500">Q.</span> 일반통관과 목록통관의 차이는?
+                            </h3>
+                            <p className="text-gray-600 text-sm pl-6">
+                                <span className="font-bold text-gray-400 mr-2">A.</span>
+                                의약품, 건강기능식품 등 특정 품목은 금액과 상관없이 일반통관으로 진행되며 수수료가 발생할 수 있습니다.
+                            </p>
+                        </div>
+                    </div>
+                </article>
             </div>
         </section>
     );
