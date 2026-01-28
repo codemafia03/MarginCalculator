@@ -15,7 +15,8 @@ import {
     Trash2,
     CheckCircle2,
     Sparkles,
-    Wifi
+    Wifi,
+    Download
 } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
@@ -261,6 +262,40 @@ export default function MarginCalculator() {
         const updated = history.filter(item => item.id !== id);
         setHistory(updated);
         localStorage.setItem("calcHistory", JSON.stringify(updated));
+    };
+
+    // CSV Export Function
+    const exportToCSV = () => {
+        if (history.length === 0) {
+            alert("내보낼 데이터가 없습니다.");
+            return;
+        }
+
+        const headers = ["날짜", "소싱가(CNY)", "판매가(KRW)", "마진율(%)", "순수익(KRW)"];
+        const rows = history.map(item => [
+            item.date,
+            item.productPrice,
+            item.sellingPrice,
+            item.margin.toFixed(1),
+            Math.round(item.netProfit)
+        ]);
+
+        const csvContent = [
+            headers.join(","),
+            ...rows.map(row => row.join(","))
+        ].join("\n");
+
+        // Add BOM for Korean character support in Excel
+        const BOM = "\uFEFF";
+        const blob = new Blob([BOM + csvContent], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", `margin_history_${new Date().toISOString().slice(0, 10)}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
     };
 
     if (!isClient) return <div className="p-10 text-center">Loading...</div>;
@@ -537,9 +572,20 @@ export default function MarginCalculator() {
 
             {/* --- History Section --- */}
             <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
-                <div className="flex items-center gap-2 mb-4">
-                    <History className="w-5 h-5 text-gray-500" />
-                    <h2 className="font-bold text-gray-700">최근 계산 기록</h2>
+                <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                        <History className="w-5 h-5 text-gray-500" />
+                        <h2 className="font-bold text-gray-700">최근 계산 기록</h2>
+                    </div>
+                    {history.length > 0 && (
+                        <button
+                            onClick={exportToCSV}
+                            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-emerald-500 hover:bg-emerald-600 rounded-lg transition-colors shadow-sm"
+                        >
+                            <Download className="w-3.5 h-3.5" />
+                            CSV 내보내기
+                        </button>
+                    )}
                 </div>
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm text-left">
