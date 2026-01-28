@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { ThemeProvider } from "@/components/ThemeProvider";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,29 +29,32 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="ko" suppressHydrationWarning>
       <head>
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3269724529724675" crossOrigin="anonymous"></script>
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
       >
-        <main className="flex-grow">
-          {children}
-        </main>
+        <ThemeProvider>
+          <ThemeToggle />
+          <main className="flex-grow">
+            {children}
+          </main>
 
-        <footer className="w-full py-8 bg-zinc-100 border-t border-zinc-200 mt-auto">
-          <div className="max-w-2xl mx-auto px-4 text-center">
-            <p className="text-sm text-gray-500 mb-2">
-              © 2026 Seller Note. 본 계산 결과는 참고용이며, 정확한 세액은 관세청 기준을 따릅니다.
-            </p>
-            <div className="flex justify-center gap-6 text-xs text-gray-400">
-              <a href="/terms" className="hover:text-gray-600 transition-colors">이용약관</a>
-              <a href="/privacy" className="hover:text-gray-600 transition-colors">개인정보처리방침</a>
-              <a href="mailto:contact@sellernote.com" className="hover:text-gray-600 transition-colors">문의하기</a>
+          <footer className="w-full py-8 bg-zinc-100 border-t border-zinc-200 mt-auto">
+            <div className="max-w-2xl mx-auto px-4 text-center">
+              <p className="text-sm text-gray-500 mb-2">
+                © 2026 Seller Note. 본 계산 결과는 참고용이며, 정확한 세액은 관세청 기준을 따릅니다.
+              </p>
+              <div className="flex justify-center gap-6 text-xs text-gray-400">
+                <a href="/terms" className="hover:text-gray-600 transition-colors">이용약관</a>
+                <a href="/privacy" className="hover:text-gray-600 transition-colors">개인정보처리방침</a>
+                <a href="mailto:contact@sellernote.com" className="hover:text-gray-600 transition-colors">문의하기</a>
+              </div>
             </div>
-          </div>
-        </footer>
+          </footer>
+        </ThemeProvider>
         <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "2c8d324627554ffc9f02ea2286ac1891"}'></script>
       </body>
     </html>
